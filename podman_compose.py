@@ -1089,26 +1089,22 @@ def get_net_args_from_networks(compose: PodmanCompose, cnt: dict[str, Any]) -> l
             mac = mac_address
             mac_address = None
 
-        net_options = []
+        net_args.append(f"--network={net_name}")
         if interface_name:
-            net_options.append(f"interface_name={interface_name}")
+            net_args.append(f"--interface={interface_name}")
         if ipv4:
-            net_options.append(f"ip={ipv4}")
+            net_args.append(f"--ip={ipv4}")
         if ipv6:
-            net_options.append(f"ip6={ipv6}")
+            net_args.append(f"--ip6={ipv6}")
         if mac:
-            net_options.append(f"mac={mac}")
-
-        # Container level service aliases
-        net_options.extend([f"alias={alias}" for alias in aliases_on_container])
-        # network level service aliases
+            net_args.append(f"--mac-address={mac}")
+        
+        for alias in aliases_on_container:
+            net_args.append(f"--network-alias={alias}")
+        
         if aliases_on_net:
-            net_options.extend([f"alias={alias}" for alias in aliases_on_net])
-
-        if net_options:
-            net_args.append(f"--network={net_name}:" + ",".join(net_options))
-        else:
-            net_args.append(f"--network={net_name}")
+            for alias in aliases_on_net:
+                net_args.append(f"--network-alias={alias}")
 
     return net_args
 
